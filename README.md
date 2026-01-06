@@ -5,19 +5,20 @@
 ![Spark](https://img.shields.io/badge/Apache%20Spark-Big%20Data-E25A1C)
 ![Docker](https://img.shields.io/badge/Docker-Enabled-2496ED)
 ![Postgres](https://img.shields.io/badge/Postgres-15-336791)
-![Status](https://img.shields.io/badge/Status-EDA%20Phase-yellow)
+![Status](https://img.shields.io/badge/Status-Completed-brightgreen)
 
 ## Project Overview
 
 This project is an end-to-end **Data Engineering & Data Science pipeline** designed to simulate, process, and analyze bank transactions in real-time.
 
-Unlike standard datasets found on Kaggle, this project **generates its own synthetic data stream**, mimicking a real-world banking environment with injected fraud patterns (e.g., high amounts, suspicious locations). The goal is to build a robust infrastructure capable of ingesting raw data, orchestrating ETL workflows, and performing Big Data analysis.
+Unlike standard datasets found on Kaggle, this project **generates its own synthetic data stream**, mimicking a real-world banking environment with injected fraud patterns (e.g., high amounts, suspicious locations). The goal is to build a robust infrastructure capable of ingesting raw data, orchestrating ETL workflows, performing Big Data analysis, and training Machine Learning models.
 
 ## Tech Stack
 
 * **Language:** Python 3.10+
 * **Orchestration:** Apache Airflow (DAGs & Scheduling).
-* **Big Data Processing:** PySpark (Local Standalone Cluster).
+* **Big Data Processing:** PySpark (SQL & MLlib).
+* **Machine Learning:** Random Forest Classifier.
 * **Containerization:** Docker & Docker Compose.
 * **Database:** PostgreSQL 15.
 * **Analysis & Viz:** Pandas, Matplotlib, Seaborn, Jupyter Notebooks.
@@ -29,98 +30,85 @@ Unlike standard datasets found on Kaggle, this project **generates its own synth
 * **Synthetic Data Generator:** Custom Python logic using `Faker` to create realistic transactions with a ~5% fraud injection rate.
 * **Idempotent Architecture:** The pipeline automatically handles table creation and prevents duplicate runs.
 * **Big Data Ready:** Integration of **PySpark** with JDBC drivers to process transaction logs efficiently.
+* **ML Fraud Detection:** A persistent Random Forest model trained to detect anomalies in transaction patterns.
 * **Dockerized Environment:** One-command setup for Airflow (Webserver/Scheduler), Postgres, and Adminer.
 
 ## Architecture & Roadmap
 
-The project has completed the Engineering Phase and is currently in the **Analysis Phase**.
+The project has completed the Engineering and Analysis phases.
 
 - [x] **Phase 1: Infrastructure Setup** (Docker, Postgres, Airflow Containers).
 - [x] **Phase 2: Data Ingestion Pipeline** (Airflow DAGs, PythonOperators, SQL Hooks).
 - [x] **Phase 3: Robustness** (Error handling, Idempotency, GitFlow).
 - [x] **Phase 4: Big Data Setup** (PySpark & JDBC Integration).
-- [ ] **Phase 5: Exploratory Data Analysis (EDA)** (Statistical analysis of fraud patterns).
-- [ ] **Phase 6: Machine Learning** (Training a classifier model).
+- [x] **Phase 5: Exploratory Data Analysis (EDA)** (Statistical analysis of fraud patterns).
+- [x] **Phase 6: Machine Learning** (Training and saving a classifier model).
 
-## Getting Started
+## Data Science Results
 
-Follow these steps to run the project locally.
+After ingesting data into PostgreSQL, we used **Apache Spark** for large-scale analysis and modeling.
+
+### 1. Exploratory Data Analysis (EDA)
+Using Spark SQL and Seaborn, we identified clear patterns distinguishing legitimate vs. fraudulent transactions:
+- **Amount:** Fraudulent transactions consistently showed higher amounts (Avg ~13k MXN) compared to legitimate ones (<1k MXN).
+- **Time:** A strict temporal pattern emerged; frauds occurred exclusively between **04:00 and 21:00**, with a peak in activity during early morning hours.
+
+### 2. Fraud Detection Model
+We trained a supervised Machine Learning model to automate detection.
+- **Algorithm:** Random Forest Classifier (Spark MLlib).
+- **Performance:** **~99% Accuracy** (on synthetic test data).
+- **Features Used:** Transaction Amount, Hour of Day.
+- **Outcome:** The model is serialized and saved in the `models/` directory for inference.
+
+---
+
+## Installation & Usage
+
+Follow these steps to run the full pipeline locally.
 
 ### Prerequisites
 * Docker Desktop installed and running.
 * Python 3.9 or higher.
 * Java (OpenJDK 11) - *Required for PySpark*.
 
-## Installation 
-### Phase 1: Data Engineering Pipeline
+### Step 1: Clone and Start Infrastructure
+```bash
+git clone [https://github.com/mausanram/Data_Bank_Simulator.git](https://github.com/mausanram/Data_Bank_Simulator.git)
+cd Data_Bank_Simulator
 
-1.  **Clone the repository:**
-    ```bash
-    git clone [https://github.com/mausanram/Data_Bank_Simulator.git](https://github.com/mausanram/Data_Bank_Simulator.git)
-    cd Data_Bank_Simulator
-    ```
+# Start Postgres, Airflow, and Adminer
+sudo docker-compose up -d
+```
+### Step 2: Setup Local Environment
+This is required to run the Jupyter Notebooks and Spark driver locally.
 
-2.  **Start the Infrastructure:**
-    This command spins up Postgres, Airflow (Webserver, Scheduler, Triggerer), and Adminer.
-    ```bash
-    docker compose up -d
-    ```
+```bash
+# Create virtual environment
+python3 -m venv venv
+source venv/bin/activate
 
-3.  **Setup Local Environment (For Analysis):**
-    ```bash
-    # Create virtual environment
-    python3 -m venv venv
-    source venv/bin/activate
-    
-    # Install dependencies
-    pip install -r requirements.txt
-    ```
+# Install dependencies
+pip install -r requirements.tx
+```
 
-4.  **Access the Services:**
-    * **Airflow UI:** `http://localhost:8080` (User: `admin` / Pass: `admin`) -> *Enable the DAG here to start generating data.*
-    * **Adminer (DB View):** `http://localhost:8081`
-        * **System:** PostgreSQL
-        * **Server:** `postgres`
-        * **User:** `admin`
-        * **Password:** `admin_password`
-        * **Database:** `bank_fraud_db`
+### Step 3: Generate Data (ETL)
+1. Go to **Airflow UI**: `http://localhost:8080` (User: `admin` / Pass: `admin`).
+2. Toggle the `fraud_detection_dag` to **ON**.
+3. Trigger the DAG manually to generate the first batch of transactions.
 
-5.  **Run Analysis:**
-    Open the analysis notebook in VS Code or Jupyter:
-    * `notebooks/fraud_analysis_spark.ipynb`
+### Step 4: Run Analysis & Machine Learning
+Open the main notebook to execute the Spark analysis and train the model.
 
-### Phase 2: Data Science & Machine Learning
+```bash
+# Open the project in VS Code
+code .
+```
+Navigate to notebooks/fraud_analysis_spark.ipynb and run all cells.
 
-After the data pipeline ingests transactions into PostgreSQL, we use **Apache Spark** for large-scale analysis and modeling.
-
-1. Exploratory Data Analysis (EDA)
-We connected PySpark to the database to analyze patterns:
-- **Technique:** Spark SQL & DataFrame API.
-- **Finding:** Detected strict patterns in transaction amounts and time-of-day for fraudulent activities.
-
-2. Fraud Detection Model
-We trained a Machine Learning model to classify transactions.
-- **Algorithm:** Random Forest Classifier (Spark MLlib).
-- **Performance:** ~99% Accuracy (Synthetic Data).
-- **Features Used:** Transaction Amount, Hour of Day.
-
-#### How to Run the Analysis
-1. Ensure the Docker containers are running:
-   ```bash
-   docker compose up -d
-   ````
-
-2. Activate your local Python environment:
-   ```bash
-   source venv/bin/activate
-   ```
-
-3. Open the workspace in VS Code and open the fraud_analysis_spark.ipynb file:
-   ```bash
-   code .
-   ```
-
-4. Run all cells to perform ETL, Analysis, and Model Training.
+### Access Services
+* **Airflow UI:** `http://localhost:8080`
+* **Adminer (DB View):** `http://localhost:8081`
+    * **System:** PostgreSQL | **Server:** `postgres` | **User:** `admin` | **Pass:** `admin_password` | **DB:** `bank_fraud_db`
 
 ---
 **Author:** Mauricio Sánchez
