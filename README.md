@@ -51,7 +51,8 @@ Follow these steps to run the project locally.
 * Python 3.9 or higher.
 * Java (OpenJDK 11) - *Required for PySpark*.
 
-### Installation
+## Installation 
+### Phase 1: Data Engineering Pipeline
 
 1.  **Clone the repository:**
     ```bash
@@ -87,6 +88,39 @@ Follow these steps to run the project locally.
 5.  **Run Analysis:**
     Open the analysis notebook in VS Code or Jupyter:
     * `notebooks/fraud_analysis_spark.ipynb`
+
+### Phase 2: Data Science & Machine Learning
+
+After the data pipeline ingests transactions into PostgreSQL, we use **Apache Spark** for large-scale analysis and modeling.
+
+1. Exploratory Data Analysis (EDA)
+We connected PySpark to the database to analyze patterns:
+- **Technique:** Spark SQL & DataFrame API.
+- **Finding:** Detected strict patterns in transaction amounts and time-of-day for fraudulent activities.
+
+2. Fraud Detection Model
+We trained a Machine Learning model to classify transactions.
+- **Algorithm:** Random Forest Classifier (Spark MLlib).
+- **Performance:** ~99% Accuracy (Synthetic Data).
+- **Features Used:** Transaction Amount, Hour of Day.
+
+#### How to Run the Analysis
+1. Ensure the Docker containers are running:
+   ```bash
+   docker compose up -d
+   ````
+
+2. Activate your local Python environment:
+   ```bash
+   source venv/bin/activate
+   ```
+
+3. Open the workspace in VS Code and open the fraud_analysis_spark.ipynb file:
+   ```bash
+   code .
+   ```
+
+4. Run all cells to perform ETL, Analysis, and Model Training.
 
 ---
 **Author:** Mauricio Sánchez
