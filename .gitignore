@@ -1,3 +1,16 @@
+*.jar
+logs/
+*.log
+*.zip
+*.tar.gz
+
+venv/
+__pycache__/
+*.pyc
+
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/
+
 venv/
 .env
 .DS_Store
