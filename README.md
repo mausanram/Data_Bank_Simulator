@@ -1,39 +1,46 @@
 # Data Bank Simulator & Fraud Detection Pipeline
 
-![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
+![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
+![Airflow](https://img.shields.io/badge/Apache%20Airflow-Orchestration-orange)
+![Spark](https://img.shields.io/badge/Apache%20Spark-Big%20Data-E25A1C)
 ![Docker](https://img.shields.io/badge/Docker-Enabled-2496ED)
 ![Postgres](https://img.shields.io/badge/Postgres-15-336791)
-![Status](https://img.shields.io/badge/Status-In%20Development-yellow)
+![Status](https://img.shields.io/badge/Status-EDA%20Phase-yellow)
 
 ## Project Overview
 
-This project is an end-to-end Data Engineering pipeline designed to simulate, process, and analyze bank transactions in real-time. 
+This project is an end-to-end **Data Engineering & Data Science pipeline** designed to simulate, process, and analyze bank transactions in real-time.
 
-Unlike standard datasets found on Kaggle, this project generates its own synthetic data stream, mimicking a real-world banking environment with normal transactions and injected fraud patterns (e.g., high amounts, suspicious locations). The goal is to build a robust infrastructure capable of ingesting raw data, storing it efficiently, and preparing it for Machine Learning fraud detection models.
+Unlike standard datasets found on Kaggle, this project **generates its own synthetic data stream**, mimicking a real-world banking environment with injected fraud patterns (e.g., high amounts, suspicious locations). The goal is to build a robust infrastructure capable of ingesting raw data, orchestrating ETL workflows, and performing Big Data analysis.
 
 ## Tech Stack
 
-* **Language:** Python 3.9+ (Faker for data generation).
+* **Language:** Python 3.10+
+* **Orchestration:** Apache Airflow (DAGs & Scheduling).
+* **Big Data Processing:** PySpark (Local Standalone Cluster).
 * **Containerization:** Docker & Docker Compose.
 * **Database:** PostgreSQL 15.
-* **Database Management:** Adminer (Lightweight DB client).
-* **Version Control:** Git & GitHub (GitFlow strategy).
+* **Analysis & Viz:** Pandas, Matplotlib, Seaborn, Jupyter Notebooks.
+* **Database Management:** Adminer.
 
 ## Key Features
 
-* **Synthetic Data Generator:** A custom Python script that creates realistic user transactions (JSON format) with randomized attributes.
-* **Fraud Injection:** Logic to deliberately inject anomalies (5% probability) to train future ML models.
-* **Dockerized Infrastructure:** One-command setup for the Database and Management tools using `docker-compose`.
+* **Automated ETL Pipeline:** An Airflow DAG (`fraud_detection_dag`) that runs periodically to generate and load data.
+* **Synthetic Data Generator:** Custom Python logic using `Faker` to create realistic transactions with a ~5% fraud injection rate.
+* **Idempotent Architecture:** The pipeline automatically handles table creation and prevents duplicate runs.
+* **Big Data Ready:** Integration of **PySpark** with JDBC drivers to process transaction logs efficiently.
+* **Dockerized Environment:** One-command setup for Airflow (Webserver/Scheduler), Postgres, and Adminer.
 
 ## Architecture & Roadmap
 
-The project is currently in the **Ingestion Phase**.
+The project has completed the Engineering Phase and is currently in the **Analysis Phase**.
 
-- [x] **Phase 1: Infrastructure Setup** (Docker, PostgreSQL, Git Configuration).
-- [ ] **Phase 2: Data Ingestion** (Python Script connecting to DB).
-- [ ] **Phase 3: Orchestration** (Automating the flow with Apache Airflow).
-- [ ] **Phase 4: Transformation** (Data cleaning and aggregation).
-- [ ] **Phase 5: Visualization & ML** (Dashboarding and Fraud Prediction).
+- [x] **Phase 1: Infrastructure Setup** (Docker, Postgres, Airflow Containers).
+- [x] **Phase 2: Data Ingestion Pipeline** (Airflow DAGs, PythonOperators, SQL Hooks).
+- [x] **Phase 3: Robustness** (Error handling, Idempotency, GitFlow).
+- [x] **Phase 4: Big Data Setup** (PySpark & JDBC Integration).
+- [ ] **Phase 5: Exploratory Data Analysis (EDA)** (Statistical analysis of fraud patterns).
+- [ ] **Phase 6: Machine Learning** (Training a classifier model).
 
 ## Getting Started
 
@@ -42,6 +49,7 @@ Follow these steps to run the project locally.
 ### Prerequisites
 * Docker Desktop installed and running.
 * Python 3.9 or higher.
+* Java (OpenJDK 11) - *Required for PySpark*.
 
 ### Installation
 
@@ -52,31 +60,34 @@ Follow these steps to run the project locally.
     ```
 
 2.  **Start the Infrastructure:**
+    This command spins up Postgres, Airflow (Webserver, Scheduler, Triggerer), and Adminer.
     ```bash
-    docker-compose up -d
+    docker compose up -d
     ```
 
-3.  **Access the Database:**
-    * Open your browser at `http://localhost:8080` (Adminer).
-    * **System:** PostgreSQL
-    * **Server:** `postgres`
-    * **User:** `admin`
-    * **Password:** `admin_password`
-    * **Database:** `bank_fraud_db`
-
-4.  **Run the Simulation (Local Test):**
+3.  **Setup Local Environment (For Analysis):**
     ```bash
     # Create virtual environment
     python3 -m venv venv
     source venv/bin/activate
     
     # Install dependencies
-    pip install faker
-    
-    # Run generator
-    python transaction_generator.py
+    pip install -r requirements.txt
     ```
 
+4.  **Access the Services:**
+    * **Airflow UI:** `http://localhost:8080` (User: `admin` / Pass: `admin`) -> *Enable the DAG here to start generating data.*
+    * **Adminer (DB View):** `http://localhost:8081`
+        * **System:** PostgreSQL
+        * **Server:** `postgres`
+        * **User:** `admin`
+        * **Password:** `admin_password`
+        * **Database:** `bank_fraud_db`
+
+5.  **Run Analysis:**
+    Open the analysis notebook in VS Code or Jupyter:
+    * `notebooks/fraud_analysis_spark.ipynb`
+
 ---
-**Author:** Mauricio Sánchez  
+**Author:** Mauricio Sánchez
 **License:** MIT
